@@ -4,12 +4,13 @@ import re
 import requests
 import time
 from pymongo import MongoClient
+import pandas as pd
 
 client = MongoClient('localhost:27017')
 
 
 
-def make_soup(url):
+def make_soup(url, coll_url):
     '''
     input: url
     output: beautiful soup object that has commented section removed from html source
@@ -18,18 +19,18 @@ def make_soup(url):
     time.sleep(1.1)
     page = urllib2.urlopen(url)
     html = page.read()
-    #db_urls.collection_name.insert({'url':url, 'html':html})
+    coll_url.insert({'url':url, 'html':html})
     soupdata = BeautifulSoup(comm.sub("", html), 'lxml')
     return soupdata
 
 
-def get_play_by_play_soup(url):
+def get_play_by_play_soup(url, coll_url):
     '''
     input: pass in url link for scraping
     output: scraping query that contains table data to be scraped
     '''
     #Send to make_soup to use regular expression to remove comments from html
-    soup = make_soup(url)
+    soup = make_soup(url, coll_url)
 
     pbp = soup.find('table', {'id':'pbp'})
 
@@ -71,6 +72,10 @@ def scrape_one_game(pbp, db):
     output: a list of lists containing play_by_play data from one game
     '''
     column_headers = get_column_headers(pbp)
+    home_team = column_headers[7]
+    away_team = column_headers[6]
+    column_headers[7] = 'home_team'
+    column_headers[6] = 'away_team'
     game = []
     for test in pbp.findAll('tr')[2:]:
         try:
@@ -90,7 +95,7 @@ def scrape_one_game(pbp, db):
         exp_b = str(test.findAll('td')[7].getText())
         exp_a = str(test.findAll('td')[8].getText())
         home_wp = str(test.findAll('td')[9].getText())
-        play = [qtr, time, down, togo, location, detail, pbp_a, pbp_h, exp_a, home_wp]
+        play = [qtr, time, down, togo, location, detail, away_team, home_team, exp_b, exp_a, home_wp]
         data = {k:v for k,v in zip(column_headers, play)}
 
         db.insert(data)
@@ -114,21 +119,24 @@ def get_links_to_scrape(years, weeks):
                 links.append(str(link.findAll('a')[1]['href']))
     return links
 
-def run_scraper(links, db):
+def run_scraper(links, coll_data, coll_url):
     data = []
     for link in links:
         url = "http://www.pro-football-reference.com" + link
-        pbp = get_play_by_play_soup(url)
+        pbp = get_play_by_play_soup(url, coll_url)
 
-        data.extend(scrape_one_game(pbp, db))
+        data.extend(scrape_one_game(pbp, coll_data))
     return data
 
 
 if __name__ == '__main__':
     db_capstone = client['capstone']
     datarows = db_capstone.datarows
+    urls = db_capstone.urls
     years = get_years(2016)
-    weeks = get_weeks(1)
-    links = get_links_to_scrape(['1994'], ['week_1'])
-    data = run_scraper(links[-2:], datarows)
+    weeks = get_weeks()
+    links = get_links_to_scrape(['2016'], weeks)
+    data = run_scraper(links, datarows, urls)
+    data = pd.DataFrame(list(datarows.find()))
+    data.to_csv('2016_season.csv')
     client.close()
