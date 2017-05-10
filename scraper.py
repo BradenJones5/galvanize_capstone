@@ -3,15 +3,10 @@ import urllib2
 import re
 import requests
 import time
+from pymongo import MongoClient
 
-links = {'2016':{'week_1':['/boxscores/201609080den.htm', '/boxscores/201609110jax.htm',
-                           '/boxscores/201609110rav.htm', '/boxscores/201609110htx.htm',
-                           '/boxscores/201609110phi.htm', '/boxscores/201609110nyj.htm',
-                           '/boxscores/201609110kan.htm', '/boxscores/201609110oti.htm',
-                           '/boxscores/201609110atl.htm', '/boxscores/201609110nor.htm',
-                           '/boxscores/201609110sea.htm', '/boxscores/201609110clt.htm',
-                           '/boxscores/201609110dal.htm', '/boxscores/201609110crd.htm',
-                           '/boxscores/201609120was.htm', '/boxscores/201609120sfo.htm']}}
+client = MongoClient('localhost:27017')
+
 
 
 def make_soup(url):
@@ -22,7 +17,9 @@ def make_soup(url):
     comm = re.compile("<!--|-->")
     time.sleep(1.1)
     page = urllib2.urlopen(url)
-    soupdata = BeautifulSoup(comm.sub("", page.read()), 'lxml')
+    html = page.read()
+    #db_urls.collection_name.insert({'url':url, 'html':html})
+    soupdata = BeautifulSoup(comm.sub("", html), 'lxml')
     return soupdata
 
 
@@ -68,7 +65,7 @@ def get_weeks(num_weeks=17):
         weeks.append('week_' +str(week))
     return weeks
 
-def scrape_one_game(pbp):
+def scrape_one_game(pbp, db):
     '''
     input: play_by_play html table from pro football reference
     output: a list of lists containing play_by_play data from one game
@@ -94,6 +91,9 @@ def scrape_one_game(pbp):
         exp_a = str(test.findAll('td')[8].getText())
         home_wp = str(test.findAll('td')[9].getText())
         play = [qtr, time, down, togo, location, detail, pbp_a, pbp_h, exp_a, home_wp]
+        data = {k:v for k,v in zip(column_headers, play)}
+
+        db.insert(data)
         game.append(play)
     return game
 
@@ -114,18 +114,21 @@ def get_links_to_scrape(years, weeks):
                 links.append(str(link.findAll('a')[1]['href']))
     return links
 
-def run_scraper(links):
+def run_scraper(links, db):
     data = []
     for link in links:
         url = "http://www.pro-football-reference.com" + link
         pbp = get_play_by_play_soup(url)
 
-        data.extend(scrape_one_game(pbp))
+        data.extend(scrape_one_game(pbp, db))
     return data
 
 
 if __name__ == '__main__':
+    db_capstone = client['capstone']
+    datarows = db_capstone.datarows
     years = get_years(2016)
     weeks = get_weeks(1)
     links = get_links_to_scrape(['1994'], ['week_1'])
-    data = run_scraper(links[-2:])
+    data = run_scraper(links[-2:], datarows)
+    client.close()
