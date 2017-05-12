@@ -56,7 +56,7 @@ def get_years(end_year = 2016):
         years.append(str(year))
     return years
 
-def get_weeks(num_weeks=17):
+def get_weeks(num_weeks = 17):
     '''
     output: return a list of strings in the form "week_1" for each week in an nfl
     season, only 17 weeks in an nfl regular season
@@ -66,7 +66,7 @@ def get_weeks(num_weeks=17):
         weeks.append('week_' +str(week))
     return weeks
 
-def scrape_one_game(pbp, db):
+def scrape_one_game(pbp, db, date):
     '''
     input: play_by_play html table from pro football reference
     output: a list of lists containing play_by_play data from one game
@@ -76,6 +76,8 @@ def scrape_one_game(pbp, db):
     away_team = column_headers[6]
     column_headers[7] = 'home_team'
     column_headers[6] = 'away_team'
+    column_headers.append('date')
+
     game = []
     for test in pbp.findAll('tr')[2:]:
         try:
@@ -95,11 +97,12 @@ def scrape_one_game(pbp, db):
         exp_b = str(test.findAll('td')[7].getText())
         exp_a = str(test.findAll('td')[8].getText())
         home_wp = str(test.findAll('td')[9].getText())
-        play = [qtr, time, down, togo, location, detail, away_team, home_team, exp_b, exp_a, home_wp]
+        play = [qtr, time, down, togo, location, detail, away_team, home_team, exp_b, exp_a, home_wp, date]
         data = {k:v for k,v in zip(column_headers, play)}
 
         db.insert(data)
         game.append(play)
+
     return game
 
 def get_links_to_scrape(years, weeks):
@@ -125,7 +128,7 @@ def run_scraper(links, coll_data, coll_url):
         url = "http://www.pro-football-reference.com" + link
         pbp = get_play_by_play_soup(url, coll_url)
 
-        data.extend(scrape_one_game(pbp, coll_data))
+        data.extend(scrape_one_game(pbp, coll_data, link))
     return data
 
 
@@ -133,10 +136,10 @@ if __name__ == '__main__':
     db_capstone = client['capstone']
     datarows = db_capstone.datarows
     urls = db_capstone.urls
-    years = get_years(2016)
+    years = get_years()
     weeks = get_weeks()
-    links = get_links_to_scrape(['2016'], weeks)
+    links = get_links_to_scrape(['2015'], weeks)
     data = run_scraper(links, datarows, urls)
     data = pd.DataFrame(list(datarows.find()))
-    data.to_csv('2016_season.csv')
+    data.to_csv('2015_season.csv')
     client.close()
