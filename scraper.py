@@ -139,7 +139,7 @@ if __name__ == '__main__':
     years = get_years()
     weeks = get_weeks()
     links = get_links_to_scrape(['2015'], weeks)
-    data = run_scraper(links, datarows, urls)
+    data = run_scraper(links[:-2], datarows, urls)
     data = pd.DataFrame(list(datarows.find()))
     data.to_csv('2015_season.csv')
     client.close()
