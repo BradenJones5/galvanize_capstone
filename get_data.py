@@ -1,12 +1,21 @@
 import pandas as pd
 
 
+def extract_yard(string_decsription):
+    '''
+    input: a string description for 1 play
+    output: an integer of the yardage on each play, 0 otherwise
+    '''
+    yardage =[]
+    for word in string_decsription.split():
+        if word.isdigit():
+            yardage.append(int(word))
+
 def extract_names_from_detail_col(detail_string):
     '''
     input: takes in a string description of 1 play
     output: extracts the names in that play
     '''
-
     return ' '.join([word for word in detail_string.split()[:2] if word[0].isupper()])
 
 def get_qb_names(details):
@@ -179,18 +188,6 @@ def get_scaled_feature_matrix(dataframe):
         dataframe[comp] = dataframe[comp] * 1.0 / (dataframe[comp] + dataframe[inc])
 
     return dataframe.iloc[:,2::2].values
-
-# def create_pass_column(details, list_of_pass_atributes):
-#     '''
-#     input: pandas series of playd descriptions, an input of passing atributes
-#     for example, ['short','right','complete']
-#     output: pandas series indicating 1 if list_of_pass_atributes conditions is met
-#     0 otherwise
-#     '''
-#     column_name = ''
-#     for attribute in list_of_pass_atributes:
-#         column_name += '_' + attribute
-#     details.apply(lambda x : 1 if all(word in x.split() for word in list_of_pass_atributes) else 0)
 
 def get_data(filename):
     data = pd.read_csv(filename)
