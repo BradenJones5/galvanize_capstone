@@ -14,5 +14,33 @@ In 2016, the NFL took in $13 billion in revenue and is expected to clear $17 bil
  The goal for this project is to examine the play-by-play descriptions from every football game since 1994 and create a feature matrix based on the results of each play. Then from this scaled feature matrix, apply unsupervised learning techniques in order to group or cluster the qbs based on the results or outcomes of each play throught one season. 
  
  The data will be from [Pro Football Reference](http://http://www.pro-football-reference.com/) as they provide a nice, consistent api for scraping the play-by-play tables.
+ 
+ ## Data Collection and Processing
+ Tools Used:
+* BeautifulSoup
+* Urllib2
+* Requests
+* Re 
+* Pandas
+* AWS
+* MongoDB
+* tmux
 
+I built a webcrawler that would scrape the play-by-play tables (see example image below) for every game dating back to 1994. After running the crawler on an EC2 instance, I stored the data and scraped html files into a MongoDB database. After the crawler finished, I exported the more than 1 million scraped plays into a .csv file and secure copied this file back to my local machine for processing using Python's Pandas package.
+
+## Feature Engineering
+The starting point for my project was to see if I could use machine learning to group quarterbacks based on their passing tendencies. Using Pandas, I created new columns that flagged for specific characteristics in each play. For example, if Peyton Manning threw a pass that was completed short and to the right, a 1 would be flagged under the feature 'short_right_complete'. After obtaining these frequency counts for each play, I then grouped by player name and year, and this resulted in my feature matrix after subsetting for only qbs that threw more than 300 passes (roughly 6 games) in a season. 
+
+Features Created:
+* Passes completed for short yardage to the left, middle, and right sections of the field
+* Passes complete for deep yardage to the left, middle, and right sections of the field
+
+The example transformation can be seen below (some features removed for spacing).
 ![pbp](https://github.com/BradenJones5/galvanize_capstone/blob/master/pbp_snapshot.jpeg)
+
+Resulting dataframe:
+
+| QB Name | Year | Short Right Complete | Short left Complete | Deep Right Complete | Deep Left Complete |
+| ------- | ---- | -------------------- | ------------------- | ------------------- | ------------------ |
+| Marcus Mariota | 2016 | 0 | 0 | 1 | 0 |
+| Shaun Hill | 2016 | 0 | 0| 0 | 0 |
