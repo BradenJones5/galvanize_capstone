@@ -12,3 +12,5 @@ In 2016, the NFL took in $13 billion in revenue and is expected to clear $17 bil
  
  ## Goal - Setup - Data Source
  The goal for this project is to examine the play-by-play descriptions from every football game since 1994 and create a feature matrix based on the results of each play. Then from this scaled feature matrix, apply unsupervised learning techniques in order to group or cluster the qbs based on the results or outcomes of each play throught one season. The data will be from [Pro Football Reference](http://http://www.pro-football-reference.com/) as they provide a nice, consistent api for scraping the play-by-play tables.
+
+![pbp](https://github.com/BradenJones5/galvanize_capstone/blob/master/pbp_snapshot.jpeg)
