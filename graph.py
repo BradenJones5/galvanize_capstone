@@ -23,6 +23,7 @@ def create_graph(matrix):
                         width= 2.0, font_family = 'arial', linewidths = 2.0, alpha = .9)
 
     plt.axis("off")
+    plt.savefig('2016_qb_graph.jpg', dpi=1000)
     plt.show()
 
 if __name__ == '__main__':

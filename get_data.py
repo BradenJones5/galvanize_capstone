@@ -1,15 +1,43 @@
 import pandas as pd
+def scale_conversion(dataframe):
+    '''
+    input: dataframe
+    output: return numpy array with scaled 3rd conversion rate
+    '''
+    dataframe['comp_percent'] = dataframe.iloc[:,-2] / (dataframe.iloc[:,-1].values + dataframe.iloc[:,-2].values)
 
+def get_3rd_down_conversions(dataframe):
+    '''
+    input: dataframe
+    output: return pandas series 1 if the team converted on third down, 0 otherwise
+    '''
+    temp =dataframe[dataframe['Down'] == 3.0]
+    convert = (temp.yardage > temp.ToGo).astype(int)
+    not_convert = pd.get_dummies(convert)[0]
+    temp['convert'] = pd.Series(convert)
+    temp['not_convert'] = pd.Series(not_convert)
+    return temp
 
-def extract_yard(string_decsription):
+def extract_yard(string_description):
     '''
     input: a string description for 1 play
     output: an integer of the yardage on each play, 0 otherwise
     '''
     yardage =[]
-    for word in string_decsription.split():
+    for word in string_description.split():
         if word.isdigit():
             yardage.append(int(word))
+    if not yardage:
+        return 0
+    else:
+        return yardage[0]
+
+def create_yardage_column(details):
+    '''
+    input: pandas series
+    output: a pandas series containing the yardage
+    '''
+    return details.apply(extract_yard)
 
 def extract_names_from_detail_col(detail_string):
     '''
@@ -164,14 +192,15 @@ def get_feature_matrix(dataframe):
                 'short_left_complete',' short_left_incomplete','deep_left_complete',
                 'deep_left_incomplete','deep_right_complete','deep_right_incomplete',
                 'short_middle_complete', 'short_middle_incomplete','deep_middle_complete',
-                'deep_middle_incomplete','_passplay_flag']
+                'deep_middle_incomplete','yardage','_passplay_flag']
 
     functions = [create_short_right_complete_col, create_short_right_incomplete_col,
                 create_short_left_complete_col, create_short_left_incomplete_col,
                 create_deep_left_complete_col, create_deep_left_incomplete_col,
                 create_deep_right_complete_col, create_deep_left_incomplete_col,
                 create_short_middle_complete_col, create_deep_left_incomplete_col,
-                create_deep_middle_complete_col, create_deep_middle_incomplete_col]
+                create_deep_middle_complete_col, create_deep_middle_incomplete_col,
+                create_yardage_column,]
 
     for feature, function in zip(features[:-1], functions):
         dataframe[feature] = function(dataframe.Detail)
@@ -199,19 +228,22 @@ def get_data(filename):
     data = filter_qb_rb_plays(data)
     data['_passplay_flag'] = create_flag_for_plays(data.Detail)
     data = data[data._passplay_flag == 1]
-    #
-    # data['short_right_complete'] = create_short_right_complete_col(data.Detail)
-    # data['short_left_complete'] = create_short_left_complete_col(data.Detail)
-    # data['deep_left_complete'] = create_deep_left_complete_col(data.Detail)
-    # data['deep_right_complete'] = create_deep_right_complete_col(data.Detail)
-    # data['short_middle_complete'] = create_short_middle_complete_col(data.Detail)
-    # data['deep_middle_complete'] = create_deep_middle_complete_col(data.Detail)
     data, features = get_feature_matrix(data)
-    data = data.groupby(['qb_names','year'])[features].sum().reset_index()
-    mask = data['_passplay_flag'] > 300
-    data = data[mask]
-    # feature_matrix = get_scaled_feature_matrix(data)
+    copy = data.copy()
+    copy = get_3rd_down_conversions(copy)
 
+    data = pd.merge(data, copy[['Unnamed: 0','convert','not_convert']],how = 'left', left_on='Unnamed: 0', right_on = 'Unnamed: 0')
+    data['convert'].fillna(0, inplace=True)
+    data['not_convert'].fillna(0, inplace=True)
+
+
+    features.append('convert')
+    features.append('not_convert')
+    data = data.groupby(['qb_names','year'])[features].sum().reset_index()
+
+    mask = data['_passplay_flag'] > 350
+    data = data[mask]
+    scale_conversion(data)
 
     return data
 
