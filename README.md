@@ -47,5 +47,7 @@ Resulting dataframe:
 | Tom Brady | 2015 | 162 | 100 | 17 | 20 |
 | Peyton Manning | 2012 | 150 | 100 | 27 | 23 |
 | Carson Wentz | 2016 | 147 | 98 | 23 | 17 |
+| Aaron Rodgers | 2013 | 137 | 80 | 22 | 40 |
 | Aaron Rodgers | 2014 | 152 | 78 | 34 | 28 |
 | Aaron Rodgers | 2015 | 133 | 84 | 41 | 30 |
+| Alex Smith | 2013 | 120 | 77 | 32 | 29 |
