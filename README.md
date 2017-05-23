@@ -42,5 +42,10 @@ Resulting dataframe:
 
 | QB Name | Year | Short Right Complete | Short left Complete | Deep Right Complete | Deep Left Complete |
 | ------- | ---- | -------------------- | ------------------- | ------------------- | ------------------ |
-| Marcus Mariota | 2016 | 0 | 0 | 1 | 0 |
-| Shaun Hill | 2016 | 0 | 0| 0 | 0 |
+| Marcus Mariota | 2016 | 150 | 98 | 30 | 26 |
+| Shaun Hill | 2016 | 138 | 78 | 24 | 18 |
+| Tom Brady | 2015 | 162 | 100 | 17 | 20 |
+| Peyton Manning | 2012 | 150 | 100 | 27 | 23 |
+| Carson Wentz | 2016 | 147 | 98 | 23 | 17 |
+| Aaron Rodgers | 2014 | 152 | 78 | 34 | 28 |
+| Aaron Rodgers | 2015 | 133 | 84 | 41 | 30 |
