@@ -55,6 +55,30 @@ Resulting dataframe:
 ## Model
 After creating my feature matrix I then scaled my features based on the number of pass attempts each quarterback threw that year. Given, that each QB is going to throw a different number of passes I used this type of scaling over the traditional standardScaler in sklearn, which substracts by the mean and divides by the standard deviation.
 
-The next step was to cluster my features and explore the groupings visualy against the principal components.
-![clusters]
+The next step was to cluster my features and explore the groupings visualy against the principal components. After exploring various clustering algorithms, I decided that initializing kmeans with kmeans++ and 4 clusters, was the best fit for my data. Given that short, deep, left, right are the most common features this made the most sense to me.
+![clusters](https://github.com/BradenJones5/galvanize_capstone/blob/master/base_cluster.png)
+
+Now that I had my groupings, I wanted to explore the variations between the groupings and to do this I looked at the centroids from my clustering model. One thing I noticed overall, quarterbacks tend to favor throwing towards their strong arm (for example, if they are right-handed they tend to throw to the right side of the field). Although, some really great quarterbacks break that trend and do better better than most throwing to the opposite side of the field. Here is the analysis from those clusters:
+
+"West Coast" - Theses quarterbacks have much more success throwing to the short left and right (most successful) side of the field. Avoid/not succcesful throwing to the middle of the field. Named "west coast" because many west coast offense quarterbacks fall into this grouping such as Alex Smith, Sam Bradford, Russell Wilson.
+
+"Gunslingers" - These quarterbacks have the most success throwing deep down the field, especially to the middle and right sides of the field. Quarterbacks in this group include Matt Ryan and Ben Roethlisberger.
+
+"Lefties" - These quarterbacks have the most success throwing to the left side of the field (both short and deep). Quarterbacks in this group are successful left-handed quarterbacks. One interesting note, Peyton Manning (right-handed) appears in this group for 8 seasons and I feel its interesting enough to explore deeper. My inital hypothesis, is that their offense uses a lot of misdirection and Peyton is comfortable enough to turn and throw to the opposite side of the field.
+
+"Balanced" - These quarterbacks distribute the ball much more evenly across all quadrants of the field, signaling very good field vision and ability to go through progressions. Most of the higher level pocket passers fit in this category. Quarterbacks such as Philip Rivers, Carson Palmer, and Andrew Luck.
+
+## 2016 Quarterback Network
+The next thing I wanted to explore from my data was given these passing tendencies for each quadrant of the field which quarterbacks are the most similar. 
+
+I computed a similarity matrix based on a L1 distance metric and used this to build a network graph with graphx of the quarterbacks that played the majority of the 2016 season.
+
+What is interesting is that if you look at the node with the most edges(#22), this represents Philip Rivers. This is interesting because Philip Rivers is often known as the model pocket passer in today's NFL. Diving deeper we see his connected neighbors as Carson Palmer, Andrew Luck, Jameis Winston. Furthermore, all of these quarterbacks were clustered in my model's "Balanced" group, a group I defined to have good field vision and can go through their progressions.. Interesting enough, I looked up some old scouting reports of all 4 of these quarterbacks and they were identified by professional scouts as having good field vision and possessing the ability to throw the ball to all parts of the field.
+
+## For the Future
+Since my data has access to which down the play occured and which quarter. I would like to explore these quarterback tendencies in different scenarios. For example, where do the top quarterbacks like to throw the ball on 3rd and 4th down? Same thing for late in games and seasons (high pressure scenarios)? If successful I am confident that we might be starting to be able to connect "clutch" quarterbacks to certain tendencies.
+
+I would like to also build a web app that allows users to enter a qb name, and quickly return a few qbs that are most similar according to my various models.
+
+
 
