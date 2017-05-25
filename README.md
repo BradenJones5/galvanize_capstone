@@ -51,3 +51,10 @@ Resulting dataframe:
 | Aaron Rodgers | 2014 | 152 | 78 | 34 | 28 |
 | Aaron Rodgers | 2015 | 133 | 84 | 41 | 30 |
 | Alex Smith | 2013 | 120 | 77 | 32 | 29 |
+
+## Model
+After creating my feature matrix I then scaled my features based on the number of pass attempts each quarterback threw that year. Given, that each QB is going to throw a different number of passes I used this type of scaling over the traditional standardScaler in sklearn, which substracts by the mean and divides by the standard deviation.
+
+The next step was to cluster my features and explore the groupings visualy against the principal components.
+![clusters]
+
